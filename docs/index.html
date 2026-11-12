@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Child poverty and Year 6 obesity in England</title>
+<style>
+:root{color:#173045;background:#fff;font:17px/1.65 system-ui,sans-serif;--accent:#17686b;--rule:#d9e3e9}
+body{margin:0}main{max-width:900px;margin:auto;padding:42px 22px 65px}header{border-top:6px solid var(--accent);padding-top:22px}
+h1,h2{line-height:1.15}h1{font-size:clamp(2.15rem,6vw,3.45rem);margin:.3em 0}h2{font-size:1.55rem;margin-top:0}
+p{max-width:76ch}a{color:#126264;text-underline-offset:.15em}nav{display:flex;flex-wrap:wrap;gap:8px 18px;margin:25px 0}
+section{border-top:1px solid var(--rule);padding:30px 0 10px;scroll-margin-top:16px}img{max-width:100%;height:auto}
+figure{margin:16px 0}figcaption{font-size:.91rem;color:#42586a}table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--rule)}th{color:var(--accent)}
+</style>
+</head>
+<body><main>
+<header><div>HPDM182 · England 2024/25</div><h1>Child poverty and Year 6 obesity</h1>
+<p>Across English local authorities, is a higher child poverty rate associated with higher Year 6 obesity prevalence?</p>
+<p>We expected a positive association. In the straight-line model, the null hypothesis was a zero slope and the directional alternative was a positive slope.</p></header>
+<nav aria-label="Project sections"><a href="#literature">Literature</a><a href="#data">Datasets</a><a href="#exploration">Exploration</a><a href="#methods">Methods</a><a href="#results">Results</a><a href="#evaluation">Evaluation</a><a href="#further-research">Further research</a><a href="#references">References</a></nav>
+<section id="literature"><h2>Literature review</h2>
+<p>The National Child Measurement Programme reported a 15.8 percentage point gap in Year 6 obesity prevalence between the most and least deprived areas in 2024/25. A review by Ernest and colleagues describes social and environmental factors linked to childhood obesity, including access to food and opportunities for physical activity. Our project looks specifically at relative low income across councils. <a href="#references">References</a></p></section>
+<section id="data"><h2>Datasets</h2>
+<ul><li>Year 6 obesity prevalence, including severe obesity, among children aged 10–11 in academic year 2024/25. <a href="https://fingertips.phe.org.uk/profile/obesity-physical-activity-nutrition/">OHID Fingertips, indicator 90323</a></li>
+<li>Percentage of children under 16 living in relative low-income families before housing costs, financial year ending March 2025. <a href="https://www.ons.gov.uk/explore-local-statistics/indicators/children-in-relative-poverty-before-housing">ONS Explore Local Statistics, using DWP data</a></li></ul>
+<p>We matched 296 lower-tier local authorities by official area code. The City of London and Isles of Scilly had no obesity figure. We used the 294 councils with both measures. The reporting periods overlap and the two measures use different age groups.</p></section>
+<section id="exploration"><h2>Exploratory analysis</h2>
+<figure><img src="figures/scatter.svg" alt="Scatterplot of child poverty and Year 6 obesity prevalence across 294 councils. The points generally rise and flatten towards the highest poverty rates."><figcaption>Each dot represents a council with both measures.</figcaption></figure>
+<p>The scatterplot showed a positive overall association. The errors from the straight-line model formed an arch, which led us to try a squared poverty term.</p></section>
+<section id="methods"><h2>Statistical methods</h2>
+<p>We calculated Pearson’s correlation and fitted an ordinary least squares regression with Year 6 obesity prevalence as the outcome and child poverty as the predictor. The shaded area shows the pointwise 95% confidence interval for the mean fitted obesity prevalence.</p>
+<figure><img src="figures/linear.svg" alt="Scatterplot with straight-line regression and pointwise 95% confidence band for the fitted mean."></figure>
+<p>For the exploratory model, we added poverty squared and compared the two fits with an F-test. Both models use the same 294 councils and neither model includes region.</p>
+</section>
+<section id="results"><h2>Results</h2>
+<table><thead><tr><th scope="col">Measure</th><th scope="col">Estimate</th></tr></thead><tbody>
+<tr><td>Pearson correlation</td><td>0.79</td></tr>
+<tr><td>Obesity difference per 10 percentage points higher poverty</td><td>+4.29 percentage points (95% CI 3.91 to 4.67)</td></tr>
+<tr><td>R²</td><td>0.63</td></tr>
+<tr><td>Residual standard deviation</td><td>2.43 percentage points</td></tr>
+<tr><td>Residual variance</td><td>5.93 squared percentage points</td></tr></tbody></table>
+<p>The squared term reduced the sum of squared errors by about 19%, from 1,730 to 1,398 (F(1, 291) = 69.06, p &lt; 0.001 under the model assumptions).</p>
+<figure><img src="figures/quadratic.svg" alt="Scatterplot comparing the straight and quadratic fits. The quadratic fit rises, flattens and then turns slightly down."></figure>
+</section>
+<section id="evaluation"><h2>Evaluation</h2><p>The quadratic curve peaks at about 34.7% poverty. Only 10 councils were above that point, so the apparent downturn is tentative. The quadratic model was chosen after looking at these data.</p>
+<p>The study compares areas in one year. Other differences between areas, including regional patterns, may contribute to the association. Questions about individual risk and causation require a different study design.</p></section>
+<section id="further-research"><h2>Further research</h2><ul><li>Compare the estimate before and after accounting for region.</li><li>Check which councils and measures are comparable in 2022 and 2025, then examine whether changes in poverty and obesity move together.</li><li>Use linked individual-level data to study how family income relates to children’s obesity risk.</li></ul></section>
+<section id="references"><h2>References</h2><ul>
+<li>Ernest, D.K. et al. (2025) ‘A scoping review of the social determinants of pediatric and adolescent obesity’, <em>International Journal of Pediatrics</em>, 2025, 8871022. <a href="https://doi.org/10.1155/ijpe/8871022">DOI</a></li>
+<li>Office for Health Improvement and Disparities (2025) <em>National Child Measurement Programme annual report, academic year 2024 to 2025, England</em>. <a href="https://www.gov.uk/government/statistics/national-child-measurement-programme-ncmp-annual-report-academic-year-2024-to-2025-england">Report</a></li>
+<li>Office for Health Improvement and Disparities, <em>Fingertips</em>. <a href="https://fingertips.phe.org.uk/profile/obesity-physical-activity-nutrition/">Indicator 90323</a></li>
+<li>Office for National Statistics, <em>Explore Local Statistics</em>. <a href="https://www.ons.gov.uk/explore-local-statistics/indicators/children-in-relative-poverty-before-housing">Child poverty indicator</a></li>
+</ul></section>
+</main></body></html>
