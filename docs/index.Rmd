@@ -26,35 +26,211 @@ hypothesis is a zero slope and the alternative is a positive slope.
   before housing costs, financial year ending March 2025.
   [ONS Explore Local Statistics, using DWP data](https://www.ons.gov.uk/explore-local-statistics/indicators/children-in-relative-poverty-before-housing)
 
-We matched 296 lower-tier local authorities by official area code. The
-City of London and Isles of Scilly had no obesity figure. We used the
-294 councils with both measures. The reporting periods overlap and the
-two measures use different age groups.
+Put the two original CSV files in the same folder as this notebook. Open
+`index.Rmd` in RStudio and click **Knit**. The code below reads the files,
+builds the analysis table and generates every plot and result.
+
+### Read and inspect the CSV files
+
+```{r import}
+obesity_file <- "Year_6_prevalence_of_obesity_compare_areas_2024_2025.csv"
+poverty_file <- "children-in-relative-poverty-before-housing_compare_areas_2024_2025.csv"
+
+missing_files <- c(obesity_file, poverty_file)
+missing_files <- missing_files[!file.exists(missing_files)]
+if (length(missing_files) > 0) {
+  stop("Put these CSV files beside index.Rmd: ",
+       paste(missing_files, collapse = ", "))
+}
+
+obesity_raw <- read.csv(obesity_file, fileEncoding = "UTF-8-BOM",
+                       na.strings = c("", "NA"), stringsAsFactors = FALSE)
+poverty_raw <- read.csv(poverty_file, fileEncoding = "UTF-8-BOM",
+                       na.strings = c("", "NA"), stringsAsFactors = FALSE)
+
+data.frame(file = c(obesity_file, poverty_file),
+           rows = c(nrow(obesity_raw), nrow(poverty_raw)),
+           columns = c(ncol(obesity_raw), ncol(poverty_raw)))
+names(obesity_raw)
+names(poverty_raw)
+head(obesity_raw[c("Area.Code", "AreaName", "Area.Type", "Time.period", "Value")])
+head(poverty_raw)
+table(obesity_raw$Area.Type, useNA = "ifany")
+table(obesity_raw$Time.period, useNA = "ifany")
+table(poverty_raw$period, useNA = "ifany")
+```
+
+### Inspect obesity prevalence before joining
+
+We keep the 2024/25 figures for lower-tier local authorities. In this
+first plot, the horizontal position is just the order of the council
+codes. It lets us see the spread of obesity rates before adding the
+poverty data.
+
+```{r obesity-only, fig.width=8, fig.height=4}
+obesity <- subset(
+  obesity_raw,
+  Indicator.ID == 90323 & Time.period == "2024/25" &
+    Sex == "Persons" & Age == "10-11 yrs" &
+    Area.Type == "Lower tier local authorities (post 4/23)",
+  select = c(Area.Code, AreaName, Value)
+)
+names(obesity) <- c("authority_code", "authority", "obesity_pct")
+obesity <- obesity[order(obesity$authority_code), ]
+obesity$obesity_pct <- as.numeric(obesity$obesity_pct)
+
+summary(obesity$obesity_pct)
+obesity[is.na(obesity$obesity_pct), ]
+
+point_colour <- adjustcolor("#42586A", alpha.f = 0.55)
+plot(seq_len(nrow(obesity)), obesity$obesity_pct,
+     xlab = "Council order by area code", ylab = "Year 6 obesity prevalence (%)",
+     pch = 16, col = point_colour)
+```
+
+### Filter the poverty data to England
+
+The poverty export covers several UK geographies. The first letter
+`E` identifies English area codes. We select the financial year starting
+1 April 2024. The join below then selects the codes that appear in the
+lower-tier obesity table.
+
+```{r poverty-england}
+table(substr(poverty_raw$areacd, 1, 1), useNA = "ifany")
+poverty_england <- subset(
+  poverty_raw, startsWith(areacd, "E") & period == "2024-04-01/P1Y",
+  select = c(areacd, areanm, value)
+)
+names(poverty_england) <- c("authority_code", "poverty_area", "poverty_pct")
+poverty_england$poverty_pct <- as.numeric(poverty_england$poverty_pct)
+
+nrow(poverty_england)
+head(poverty_england)
+summary(poverty_england$poverty_pct)
+```
+
+### Join the tables and check the match
+
+We keep every council from the obesity table. Joining on the official
+area code lets us see any missing matches before excluding rows with
+missing values.
+
+```{r join-and-check}
+stopifnot(anyDuplicated(obesity$authority_code) == 0L,
+          anyDuplicated(poverty_england$authority_code) == 0L)
+
+join_table <- merge(obesity, poverty_england,
+                    by = "authority_code", all.x = TRUE)
+complete <- complete.cases(join_table[c("obesity_pct", "poverty_pct")])
+analysis <- join_table[complete, ]
+
+head(join_table)
+data.frame(councils_in_join = nrow(join_table),
+           matched_poverty_codes = sum(!is.na(join_table$poverty_area)),
+           missing_obesity = sum(is.na(join_table$obesity_pct)),
+           missing_poverty = sum(is.na(join_table$poverty_pct)),
+           councils_in_analysis = nrow(analysis))
+join_table[!complete, c("authority_code", "authority",
+                        "obesity_pct", "poverty_pct")]
+```
+
+The two measures cover different age groups and use overlapping academic
+and financial years.
 
 ## Exploratory analysis {#exploration}
 
-![Each dot represents a council with both measures.](figures/scatter.svg)
+Each dot is one council with both figures. The plot shows how obesity
+prevalence varies across councils with different child poverty rates.
 
-The scatterplot showed a positive overall association.
+```{r scatterplot, fig.width=8, fig.height=5}
+x_label <- "Children in relative poverty before housing costs (%)"
+y_label <- "Year 6 obesity prevalence (%)"
+plot(obesity_pct ~ poverty_pct, data = analysis,
+     xlab = x_label, ylab = y_label, pch = 16, col = point_colour)
+```
 
 ## Statistical methods {#methods}
 
-We calculated Pearson's correlation and fitted an ordinary least squares
-regression with Year 6 obesity prevalence as the outcome and child
-poverty as the predictor. The shaded area shows the 95% confidence
-interval for the mean fitted obesity prevalence.
+### Fit a straight line
 
-![Scatterplot with straight-line regression and pointwise 95% confidence band for the fitted mean.](figures/linear.svg)
+Ordinary least squares fits the line that minimises the sum of the
+squared gaps between observed and fitted obesity rates. The slope gives
+the fitted difference in obesity prevalence per one percentage point
+difference in child poverty.
+
+```{r fitted-line, fig.width=8, fig.height=5}
+model <- lm(obesity_pct ~ poverty_pct, data = analysis)
+line_colour <- "#17686B"
+
+plot(obesity_pct ~ poverty_pct, data = analysis,
+     xlab = x_label, ylab = y_label, pch = 16, col = point_colour)
+abline(model, col = line_colour, lwd = 2)
+```
+
+### Add 95% confidence intervals
+
+The shaded band gives a **pointwise 95% confidence interval for the
+mean fitted obesity rate** at each poverty rate. It shows uncertainty
+around the line. A prediction interval for an individual council
+would be wider.
+
+```{r confidence-band, fig.width=8, fig.height=5}
+poverty_grid <- data.frame(
+  poverty_pct = seq(min(analysis$poverty_pct), max(analysis$poverty_pct),
+                    length.out = 200)
+)
+band <- predict(model, newdata = poverty_grid, interval = "confidence",
+                level = 0.95)
+
+plot(obesity_pct ~ poverty_pct, data = analysis, type = "n",
+     xlab = x_label, ylab = y_label,
+     ylim = range(analysis$obesity_pct, band))
+polygon(c(poverty_grid$poverty_pct, rev(poverty_grid$poverty_pct)),
+        c(band[, "lwr"], rev(band[, "upr"])),
+        col = adjustcolor(line_colour, alpha.f = 0.2), border = NA)
+points(obesity_pct ~ poverty_pct, data = analysis, pch = 16,
+       col = point_colour)
+lines(poverty_grid$poverty_pct, band[, "fit"], col = line_colour, lwd = 2)
+```
 
 ## Results {#results}
 
-| Measure | Estimate |
-|---|---|
-| Pearson correlation | 0.79 |
-| Obesity difference per 10 percentage points higher poverty | +4.29 percentage points (95% CI 3.91 to 4.67) |
-| R² | 0.63 |
-| Residual standard deviation | 2.43 percentage points |
-| Residual variance | 5.93 squared percentage points |
+```{r model-statistics}
+pearson_r <- cor(analysis$poverty_pct, analysis$obesity_pct)
+model_summary <- summary(model)
+slope_10 <- 10 * coef(model)[["poverty_pct"]]
+slope_ci_10 <- 10 * confint(model, "poverty_pct", level = 0.95)
+format_2 <- function(x) sprintf("%.2f", x)
+
+results <- data.frame(
+  Measure = c("Councils", "Pearson correlation",
+              "Slope per 10 percentage points higher child poverty",
+              "95% confidence interval for that slope",
+              "R-squared", "Residual standard deviation",
+              "Residual variance"),
+  Estimate = c(nobs(model), format_2(pearson_r),
+               paste(format_2(slope_10), "percentage points"),
+               paste(format_2(slope_ci_10[1]), "to",
+                     format_2(slope_ci_10[2]), "percentage points"),
+               format_2(model_summary$r.squared),
+               paste(format_2(model_summary$sigma), "percentage points"),
+               paste(format_2(model_summary$sigma^2),
+                     "squared percentage points"))
+)
+knitr::kable(results, align = c("l", "l"))
+```
+
+In the straight-line model, a 10 percentage point higher child poverty
+rate across councils was associated with a `r format_2(slope_10)`
+percentage point difference in fitted Year 6 obesity prevalence
+(95% CI `r format_2(slope_ci_10[1])` to `r format_2(slope_ci_10[2])`).
+The estimate is unadjusted.
+
+Pearson's correlation describes the direction and strength of the
+straight-line relationship. R-squared is the share of variation in
+obesity rates across councils accounted for by the fitted line. The
+residual standard deviation describes how far observed rates typically
+sit from the line. Residual variance is that standard deviation squared.
 
 ## Evaluation {#evaluation}
 
