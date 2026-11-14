@@ -9,26 +9,74 @@ output:
 
 ## Research question {#research-question}
 
-In 2024/25, across English local authorities, is a higher child poverty
-rate associated with higher Year 6 obesity prevalence?
+This study sets out to answer the question: In 2024/25, was obesity among Year 6 children more common in English council areas with higher rates of child poverty?
 
-We expect a positive association. In the straight-line model, the null
-hypothesis is a zero slope and the alternative is a positive slope.
+Our hypothesis was that council areas with higher child poverty rates
+would also have higher Year 6 obesity rates.
+
+The null hypothesis was that there was no link between child poverty
+rates and Year 6 obesity rates across council areas.
+
+We conducted a literature review, identified suitable datasets, explored these datasets including with visualsations, and then performed statistical analysis to try to answer the research question.
+
+We then evaluate our findings, including limitations, possible impact, and areas for further research.
 
 ## Literature review {#literature}
 
+(Explain what is known about this topic and why we chose it.)
+
 ## Datasets {#data}
 
-- Year 6 obesity prevalence, including severe obesity, among children
-  aged 10–11 in academic year 2024/25.
-  [OHID Fingertips, indicator 90323](https://fingertips.phe.org.uk/profile/obesity-physical-activity-nutrition/)
-- Percentage of children under 16 living in relative low-income families
-  before housing costs, financial year ending March 2025.
-  [ONS Explore Local Statistics, using DWP data](https://www.ons.gov.uk/explore-local-statistics/indicators/children-in-relative-poverty-before-housing)
+We used two sets of official statistics to compare child poverty and
+Year 6 obesity across English council areas in 2024/25.
 
-Put the two original CSV files in the same folder as this notebook. Open
-`index.Rmd` in RStudio and click **Knit**. The code below reads the files,
-builds the analysis table and generates every plot and result.
+### Year 6 obesity
+
+This dataset shows the percentage of children aged 10–11 who were
+classified as living with obesity, including severe obesity. The figures
+come from height and weight measurements taken in mainstream state-funded
+schools as part of the National Child Measurement Programme.
+
+The programme uses standard measurement procedures, which helps make the figures comparable
+across councils. Participation can vary, and where fewer eligible
+children are measured, the figure may be less representative of the area.
+
+We downloaded the 2024/25 CSV for Year 6 prevalence of obesity (including severe obesity) from the Fingertips Compare areas view on 9th November 2026. The original CSV, Year_6_prevalence_of_obesity_compare_areas_2024_2025.csv, is saved in the same folder as index.Rmd. [View the source data from OHID Fingertips (indicator 90323)](https://fingertips.phe.org.uk/profile/obesity-physical-activity-nutrition/)
+[View the programme’s methods and quality notes](https://www.gov.uk/government/statistics/national-child-measurement-programme-ncmp-annual-report-academic-year-2024-to-2025-england)
+
+### Child poverty
+
+This dataset estimates the percentage of children under 16 living in
+relative low-income families in the financial year ending March 2025.
+Relative low income means income below 60% of the UK median, after
+allowing for family size and before deducting housing costs.
+
+The Department for Work and Pensions uses benefits and earnings records
+to produce local estimates using a common method. This makes it possible
+to compare council areas. The estimates rely in part on benefit claims,
+so some low-income families may be missed. Housing costs also vary
+between areas, and are not considered in this measure.
+
+We downloaded the 2024/25 CSV for children in relative poverty before housing costs from the ONS Explore Local Statistics Compare areas view on 9 November 2026. The data come from the Department for Work and Pensions and cover the financial year ending March 2025. The original CSV, children-in-relative-poverty-before-housing_compare_areas_2024_2025.csv, is saved in the same folder as index.Rmd.
+
+[View the source data from ONS Explore Local Statistics](https://www.ons.gov.uk/explore-local-statistics/indicators/children-in-relative-poverty-before-housing)
+[View the DWP methods and quality notes](https://www.gov.uk/government/publications/children-in-low-income-families-local-area-statistics-background-information-and-methodology/background-information-and-methodology-children-in-low-income-families-local-area-statistics)
+
+### How we used the two datasets
+
+We matched the two datasets using official codes for English council
+areas. We checked for duplicate codes and missing values.
+
+The obesity figures cover the 2024/25 academic year. The poverty figures
+cover the financial year ending March 2025. These periods overlap, but
+they start and end at different times.
+
+The poverty figures cover all children under 16, while the obesity figures
+cover Year 6 children aged 10–11.
+
+So the comparison is of overall child poverty in each council area in the financial year, with obesity in its Year 6 population in the academic year.
+
+
 
 ### Read and inspect the CSV files
 
@@ -39,7 +87,7 @@ poverty_file <- "children-in-relative-poverty-before-housing_compare_areas_2024_
 missing_files <- c(obesity_file, poverty_file)
 missing_files <- missing_files[!file.exists(missing_files)]
 if (length(missing_files) > 0) {
-  stop("Put these CSV files beside index.Rmd: ",
+  stop("Put these CSV files in the same folder as index.Rmd: ",
        paste(missing_files, collapse = ", "))
 }
 
@@ -60,12 +108,14 @@ table(obesity_raw$Time.period, useNA = "ifany")
 table(poverty_raw$period, useNA = "ifany")
 ```
 
-### Inspect obesity prevalence before joining
+### Filter and inspect obesity prevalence before joining
 
-We keep the 2024/25 figures for lower-tier local authorities. In this
-first plot, the horizontal position is just the order of the council
-codes. It lets us see the spread of obesity rates before adding the
-poverty data.
+The raw obesity dataset is filtered for year 2024/2025, age 10-11, and area type (lower tier local authorities).
+
+The filtered obesity dataset contains 296 observations of 3 variables.
+
+We can see that 2 local authorities do not have obesity data: City of London and Isles of Scilly. These are excluded from the analysis.
+
 
 ```{r obesity-only, fig.width=8, fig.height=4}
 obesity <- subset(
@@ -81,16 +131,55 @@ obesity$obesity_pct <- as.numeric(obesity$obesity_pct)
 
 summary(obesity$obesity_pct)
 obesity[is.na(obesity$obesity_pct), ]
+```
+
+An initial plot lets us see the spread of obesity rates. The horizontal position is simply the order of the local authority codes. We can see that there is considerable variation in obesity rates between areas, from around 10% to around 30%.
+
+```{r}
 
 point_colour <- adjustcolor("#42586A", alpha.f = 0.55)
 plot(seq_len(nrow(obesity)), obesity$obesity_pct,
      xlab = "Council order by area code", ylab = "Year 6 obesity prevalence (%)",
      pch = 16, col = point_colour)
 ```
+We can also inspect the data using a choropleth map. This draws each council area using GeoJSON data from the [ONS May 2023 local authority district boundaries](https://ckan.publishing.service.gov.uk/dataset/local-authority-districts-may-2023-boundaries-uk-bgc1/resource/3464ffbe-8b4f-441d-b5a5-5e16d2a065ad) page. This csv file has been downloaded and is saved in the working directory as lad_may_2023.geojson.
+
+```{r obesity-map, fig.width=7, fig.height=8}
+library(sf)
+library(ggplot2)
+library(dplyr)
+
+boundaries <- st_read("lad_may_2023.geojson", quiet = TRUE)
+england <- filter(boundaries, startsWith(LAD23CD, "E"))
+
+obesity_map <- left_join(
+  england, obesity,
+  by = c("LAD23CD" = "authority_code")
+)
+
+ggplot(obesity_map) +
+  geom_sf(aes(fill = obesity_pct), colour = "white", linewidth = 0.1) +
+  scale_fill_gradient(
+    low = "#DEEBF7",
+    high = "#08306B",
+    limits = c(5, 35),
+    breaks = seq(5, 35, by = 5),
+    labels = function(x) paste0(x, "%"),
+    oob = scales::squish,
+    na.value = "grey85",
+    name = "Obesity prevalence"
+  ) +
+  labs(
+    title = "Obesity prevalence in England, school year 6",
+    subtitle = "Academic year 2024/25",
+    caption = "Sources: OHID Fingertips and ONS boundaries."
+  ) +
+  theme_void()
+```
 
 ### Filter the poverty data to England
 
-The poverty export covers several UK geographies. The first letter
+The raw poverty dataset covers the whole of the UK. The first letter
 `E` identifies English area codes. We select the financial year starting
 1 April 2024. The join below then selects the codes that appear in the
 lower-tier obesity table.
@@ -109,10 +198,49 @@ head(poverty_england)
 summary(poverty_england$poverty_pct)
 ```
 
+Again, an initial plot lets us see the spread of poverty rates. The horizontal position is again the order of the local authority codes. We can see that there is again considerable variation in child poverty rates between areas, from around 5% to around 40%.
+
+```{r}
+
+point_colour <- adjustcolor("#42586A", alpha.f = 0.55)
+plot(seq_len(nrow(poverty_england)), poverty_england$poverty_pct,
+     xlab = "Council order by area code", ylab = "Child poverty prevalence (%)",
+     pch = 16, col = point_colour)
+```
+
+Here is a similar choropleth map allowing visualisation of the spread of child poverty across local authority araes in England:
+
+```{r poverty-map, fig.width=7, fig.height=8, out.width="100%"}
+poverty_map <- left_join(
+  england, poverty_england,
+  by = c("LAD23CD" = "authority_code")
+)
+
+ggplot(poverty_map) +
+  geom_sf(aes(fill = poverty_pct), colour = "white", linewidth = 0.1) +
+  scale_fill_gradient(
+    low = "#FEE5D9",
+    high = "#A50F15",
+    limits = c(0, 45),
+    breaks = seq(0, 45, by = 5),
+    labels = function(x) paste0(x, "%"),
+    oob = scales::squish,
+    na.value = "grey85",
+    name = "Child poverty"
+  ) +
+  labs(
+    title = "Child poverty across English councils",
+    subtitle = "Children under 16 in relative poverty before housing costs, 2024/25",
+    caption = "Sources are ONS Explore Local Statistics and ONS boundaries."
+  ) +
+  theme_void()
+```
+
+
 ### Join the tables and check the match
 
 We keep every council from the obesity table. Joining on the official
-area code lets us see any missing matches before excluding rows with
+area code lets us see any missing matches, before excluding the rows with
 missing values.
 
 ```{r join-and-check}
@@ -134,13 +262,14 @@ join_table[!complete, c("authority_code", "authority",
                         "obesity_pct", "poverty_pct")]
 ```
 
-The two measures cover different age groups and use overlapping academic
-and financial years.
 
 ## Exploratory analysis {#exploration}
 
-Each dot is one council with both figures. The plot shows how obesity
-prevalence varies across councils with different child poverty rates.
+The plot below shows how obesity prevalence varies across councils with different child poverty rates.
+
+Each dot is an observation of poverty rate and obesity prevalance for a unique local authority area.
+
+There is an initial impression of a positive relationship between obesity and poverty, as expected from the literature.
 
 ```{r scatterplot, fig.width=8, fig.height=5}
 x_label <- "Children in relative poverty before housing costs (%)"
@@ -154,8 +283,9 @@ plot(obesity_pct ~ poverty_pct, data = analysis,
 ### Fit a straight line
 
 Ordinary least squares fits the line that minimises the sum of the
-squared gaps between observed and fitted obesity rates. The slope gives
-the fitted difference in obesity prevalence per one percentage point
+squared gaps between observed and fitted obesity rates.
+
+The slope gives the fitted difference in obesity prevalence per one percentage point
 difference in child poverty.
 
 ```{r fitted-line, fig.width=8, fig.height=5}
@@ -169,10 +299,9 @@ abline(model, col = line_colour, lwd = 2)
 
 ### Add 95% confidence intervals
 
-The shaded band gives a **pointwise 95% confidence interval for the
-mean fitted obesity rate** at each poverty rate. It shows uncertainty
-around the line. A prediction interval for an individual council
-would be wider.
+The shaded band represents a 95% confidence interval for the
+mean fitted obesity rate at each poverty rate. It shows uncertainty
+around the line. 
 
 ```{r confidence-band, fig.width=8, fig.height=5}
 poverty_grid <- data.frame(
@@ -227,18 +356,20 @@ percentage point difference in fitted Year 6 obesity prevalence
 The estimate is unadjusted.
 
 Pearson's correlation describes the direction and strength of the
-straight-line relationship. R-squared is the share of variation in
-obesity rates across councils accounted for by the fitted line. The
-residual standard deviation describes how far observed rates typically
+straight-line relationship.
+
+R-squared is the share of variation in obesity rates across councils accounted for by the fitted line. 
+The residual standard deviation describes how far observed rates typically
 sit from the line. Residual variance is that standard deviation squared.
 
 ## Evaluation {#evaluation}
 
 ## Further research {#further-research}
 
-- Compare the estimate before and after accounting for region.
+- Compare the estimate before and after accounting for region?
 - Check which councils and measures are comparable in 2022 and 2025, then
-  examine whether changes in poverty and obesity move together.
+  examine whether changes in poverty and obesity move together?
+- Explore if a curve fits better than a straight line?
 
 ## References {#references}
 
