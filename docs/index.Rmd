@@ -23,7 +23,19 @@ We then evaluate our findings, including limitations, possible impact, and areas
 
 ## Literature review {#literature}
 
-(Explain what is known about this topic and why we chose it.)
+Late 1990s and early 2000s first identified the childhood obesity disparity. (Stamatakis et al., 2005)​
+
+2010s severe obesity in deprived areas (Ells et al., 2015)​
+
+COVID-19 effect on obesity (NCMP, 2021)​
+
+Potential reasons why: ​
+
+Food access costs (Eskandari et al., 2022)​
+
+Physical inactivity (Cheung et al., 2022)​
+
+Stress and parental perceptions of weight (Broadbent et al., 2024)​
 
 ## Datasets {#data}
 
@@ -364,6 +376,35 @@ sit from the line. Residual variance is that standard deviation squared.
 
 ## Evaluation {#evaluation}
 
+Strengths:
+
+Large dataset covering all English local authorities.​
+
+Recent 2024/25 data for both variables.​
+
+Pearson correlation and linear regression provide complementary statistical evidence.​
+
+Limitations:
+
+Local-authority-level data cannot be applied to individual children.​
+
+Correlation does not establish causation.​
+
+Other factors, including ethnicity, deprivation, physical activity and food access, may influence obesity rates.​
+
+Local-authority averages may hide inequalities within areas.​
+
+NCMP data excludes some children, including those who are homeschooled or attend independent schools.​
+
+Key findings:
+
+Strong positive association between child poverty and Year 6 obesity (r = 0.79).​
+
+Higher child poverty is associated with higher Year 6 obesity rates.​
+
+The regression model explains approximately 63% of the variation in obesity rates (R² = 0.63).​
+
+Further research is needed to explore other contributing factors.​
 ## Further research {#further-research}
 
 - Compare the estimate before and after accounting for region?
@@ -373,13 +414,20 @@ sit from the line. Residual variance is that standard deviation squared.
 
 ## References {#references}
 
-- Ernest, D.K. et al. (2025) ‘A scoping review of the social determinants
-  of pediatric and adolescent obesity’, *International Journal of
-  Pediatrics*, 2025, 8871022. [DOI](https://doi.org/10.1155/ijpe/8871022)
-- Office for Health Improvement and Disparities (2025) *National Child
-  Measurement Programme annual report, academic year 2024 to 2025,
-  England*. [Report](https://www.gov.uk/government/statistics/national-child-measurement-programme-ncmp-annual-report-academic-year-2024-to-2025-england)
-- Office for Health Improvement and Disparities, *Fingertips*.
-  [Indicator 90323](https://fingertips.phe.org.uk/profile/obesity-physical-activity-nutrition/)
-- Office for National Statistics, *Explore Local Statistics*.
-  [Child poverty indicator](https://www.ons.gov.uk/explore-local-statistics/indicators/children-in-relative-poverty-before-housing)
+- Broadbent, P., Shen, Y., Pearce, A. and Katikireddi, S.V. (2024) ‘Trends in inequalities in childhood overweight and obesity prevalence: a repeat cross-sectional analysis of the Health Survey for England’, *Archives of Disease in Childhood*, 109(3), pp. 233–239. [DOI](https://doi.org/10.1136/archdischild-2023-325844)
+
+- Ells, L.J., Hancock, C., Copley, V.R., Mead, E., Dinsdale, H., Kinra, S., Viner, R.M. and Rutter, H. (2015) ‘Prevalence of severe childhood obesity in England: 2006–2013’, *Archives of Disease in Childhood*, 100(7), pp. 631–636. [DOI](https://doi.org/10.1136/archdischild-2014-307036)
+
+- Ernest, D.K. et al. (2025) ‘A scoping review of the social determinants of pediatric and adolescent obesity’, *International Journal of Pediatrics*, 2025, article 8871022. [DOI](https://doi.org/10.1155/ijpe/8871022)
+
+- Eskandari, F., Lake, A.A., Rose, K., Butler, M. and O’Malley, C. (2022) ‘A mixed-method systematic review and meta-analysis of the influences of food environments and food insecurity on obesity in high-income countries’, *Food Science & Nutrition*, 10(11), pp. 3689–3723. [DOI](https://doi.org/10.1002/fsn3.2969)
+
+- Office for Health Improvement and Disparities (2022) *Childhood obesity: applying All Our Health*. Updated 7 April 2022. [GOV.UK](https://www.gov.uk/government/publications/childhood-obesity-applying-all-our-health/childhood-obesity-applying-all-our-health) (Accessed: 18 November 2026).
+
+- Office for Health Improvement and Disparities (2025a) *National Child Measurement Programme annual report, academic year 2024 to 2025, England*. [Report](https://www.gov.uk/government/statistics/national-child-measurement-programme-ncmp-annual-report-academic-year-2024-to-2025-england)
+
+- Office for Health Improvement and Disparities (2025b) *Year 6 prevalence of obesity (including severe obesity), indicator 90323, academic year 2024/25*. Fingertips [CSV dataset]. [Source data](https://fingertips.phe.org.uk/profile/obesity-physical-activity-nutrition/) (Downloaded: 9 November 2026).
+
+- Office for National Statistics (2026) *Children in relative poverty before housing costs, financial year ending March 2025*. Explore Local Statistics. Source data from the Department for Work and Pensions [CSV dataset]. [Source data](https://www.ons.gov.uk/explore-local-statistics/indicators/children-in-relative-poverty-before-housing) (Downloaded: 9 November 2026).
+
+- Stamatakis, E., Primatesta, P., Chinn, S., Rona, R. and Falascheti, E. (2005) ‘Overweight and obesity trends from 1974 to 2003 in English children: what is the role of socioeconomic factors?’, *Archives of Disease in Childhood*, 90(10), pp. 999–1004. [DOI](https://doi.org/10.1136/adc.2004.068932)
