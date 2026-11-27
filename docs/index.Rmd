@@ -21,21 +21,11 @@ We conducted a literature review, identified suitable datasets, explored these d
 
 We then evaluate our findings, including limitations, possible impact, and areas for further research.
 
-## Literature review {#literature}
+## Background {#literature}
 
-Late 1990s and early 2000s first identified the childhood obesity disparity. (Stamatakis et al., 2005)​
+Socioeconomic inequalities in childhood obesity in England were documented in data from the late 1990s and early 2000s (Stamatakis et al., 2005). Subsequent research found that severe obesity was more prevalent among children living in more deprived areas (Ells et al., 2015). The National Child Measurement Programme (NCMP) reported a sharp increase in childhood obesity prevalence in 2020/21, during the COVID-19 pandemic (NCMP, 2021).
 
-2010s severe obesity in deprived areas (Ells et al., 2015)​
-
-COVID-19 effect on obesity (NCMP, 2021)​
-
-Potential reasons why: ​
-
-Food access costs (Eskandari et al., 2022)​
-
-Physical inactivity (Cheung et al., 2022)​
-
-Stress and parental perceptions of weight (Broadbent et al., 2024)​
+Several factors may contribute to this socioeconomic gradient. The cost and availability of healthier food can shape what families are able to buy (Eskandari et al., 2022), while lower levels of physical activity may also play a role (Cheung et al., 2022). Family stress and parental perceptions of children’s weight have also been explored as potential influences (Broadbent et al., 2024). Against this background, our study examines whether English local authorities with higher rates of child poverty also had higher Year 6 obesity prevalence in 2024/25.
 
 ## Datasets {#data}
 
@@ -376,41 +366,21 @@ sit from the line. Residual variance is that standard deviation squared.
 
 ## Evaluation {#evaluation}
 
-Strengths:
+The analysis used recent 2024/25 data and covered 294 English local authorities with data available for both child poverty and Year 6 obesity. Pearson’s correlation showed a strong positive association (\(r = 0.79\)). The linear regression described how obesity prevalence varied with child poverty and accounted for approximately 63% of the variation in Year 6 obesity prevalence across local authorities (\(R^2 = 0.63\)).
 
-Large dataset covering all English local authorities.​
+The cross-sectional ecological design limits what can be inferred. The association was measured at local-authority level, so it cannot tell us whether individual children living in poverty were more likely to have obesity or whether poverty caused the differences observed. Other factors, including ethnic composition, wider socioeconomic deprivation, physical activity and access to affordable healthy food, may also contribute to differences between areas. Local-authority averages may also mask inequalities within areas.
 
-Recent 2024/25 data for both variables.​
+The two measures cover different populations and reporting periods. The poverty measure covers children under 16 in the financial year ending March 2025, while the obesity measure covers Year 6 pupils in the 2024/25 academic year. The National Child Measurement Programme also excludes some children, including those who are home educated or attend independent schools, which limits how well the estimates represent all children of Year 6 age.
 
-Pearson correlation and linear regression provide complementary statistical evidence.​
+Further research is needed to explore other contributing factors.
 
-Limitations:
-
-Local-authority-level data cannot be applied to individual children.​
-
-Correlation does not establish causation.​
-
-Other factors, including ethnicity, deprivation, physical activity and food access, may influence obesity rates.​
-
-Local-authority averages may hide inequalities within areas.​
-
-NCMP data excludes some children, including those who are homeschooled or attend independent schools.​
-
-Key findings:
-
-Strong positive association between child poverty and Year 6 obesity (r = 0.79).​
-
-Higher child poverty is associated with higher Year 6 obesity rates.​
-
-The regression model explains approximately 63% of the variation in obesity rates (R² = 0.63).​
-
-Further research is needed to explore other contributing factors.​
 ## Further research {#further-research}
 
-- Compare the estimate before and after accounting for region?
-- Check which councils and measures are comparable in 2022 and 2025, then
-  examine whether changes in poverty and obesity move together?
-- Explore if a curve fits better than a straight line?
+A next step would be to compare the estimated association between child poverty and Year 6 obesity before and after accounting for region. This would show how much the estimate changes when differences between regions are taken into account.
+
+A follow-up analysis could examine whether changes in child poverty between an earlier year and 2025 were associated with changes in Year 6 obesity prevalence over the same period. This would first require checking which local authorities had comparable boundaries and consistently defined measures in both years. It might give information about whether a relationship was getting weaker or stronger over time. However we could olnly identify data in this form from 2021/22 and so this limits the scope.
+
+We noticed on visualisation of the scatterplot that a curve (like a banana) might fit the data better. A model that allows for a curved relationship could be compared with the linear model to assess whether the association differs across the observed range of child poverty rates.
 
 ## References {#references}
 
